@@ -57,11 +57,10 @@ class GUI:
             else:
                 user = self.get_user(token)
                 check_voting_access = self.check_voting_access(user, voting_id)
+
                 if check_voting_access:
                     self.voting(user, voting_id)
-                else:
-                    print("Invalid password")
-                    self.builder.get_object('usernameLabelError').set_text("Invalid user or password")
+
 
     def login(self, username, password):
         url = 'http://127.0.0.1:8000/gateway/authentication/login/'
@@ -88,9 +87,7 @@ class GUI:
         url = 'http://localhost:8000/voting/?id=' + str(voting_id)
         r = requests.get(url)
 
-        if r.json() == []:
-            self.builder.get_object('votingIdLabelError').set_text("Voting not found")
-        else:
+        if r.json():
             voting = r.json()[0]
 
             end_date_ok = voting["end_date"] == None
@@ -99,6 +96,10 @@ class GUI:
             r = requests.get(url)
 
             voting_id_ok = r.json() == "Valid voter"
+            if voting_id_ok == False:
+                self.builder.get_object('votingIdLabelError').set_text("You don't have access to this voting")
+        else:
+            self.builder.get_object('votingIdLabelError').set_text("Voting not found")
 
         return end_date_ok and voting_id_ok
 
