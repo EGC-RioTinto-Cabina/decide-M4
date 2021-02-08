@@ -28,21 +28,17 @@ from .forms import CrearUsuario
 from .forms import PeticionForm
 from .models import PeticionCenso
 
-
 # Create your views here.
-
 
 
 # TODO: check permissions and census
 class BoothView(TemplateView):
-    #renderer_classes = [TemplateHTMLRenderer]
-  
     template_name = 'booth/booth.html'
 
     def get_context_data(self, **kwargs):
-        
         context = super().get_context_data(**kwargs)
         vid = kwargs.get('voting_id', 0)
+
         try:
             r = mods.get('voting', params={'id': vid})
 
@@ -52,15 +48,11 @@ class BoothView(TemplateView):
                 r[0]['pub_key'][k] = str(v)
 
             context['voting'] = json.dumps(r[0])
-            print(context['voting'])
-            print(json.dumps(r[0]))
         except:
             raise Http404
+
         context['KEYBITS'] = settings.KEYBITS
-        
-        '''     context['start_date'] = self.format_fecha(context['start_date'])
-        context['end_date'] = self.format_fecha(context['end_date'])'''
-        
+
         return context
     
     # formateo fecha "2021-01-12 00:00",
@@ -122,29 +114,30 @@ def multiple(request):
 
 
 def welcome(request):
-	context={}
-	listaUltimasVotaciones=[]
-	listaUltimasVotaciones=ultimasVotaciones()
-	listaCensada=listaCensadaIds(request.user.id)
-	votacionesUsuarioCensado=votacionesPorUsuario(listaCensada, request.user.id)
+	context = {}
+	listaUltimasVotaciones = []
+	listaUltimasVotaciones = ultimasVotaciones()
+	listaCensada = listaCensadaIds(request.user.id)
+	votacionesUsuarioCensado = votacionesPorUsuario(listaCensada, request.user.id)
 	context = {'allVotaciones':listaUltimasVotaciones, 'votacionesCensado':votacionesUsuarioCensado, 'listaVacia':False}
-	if len(votacionesUsuarioCensado)==0:
-		context['listaVacia']=True
+	if len(votacionesUsuarioCensado) == 0:
+		context['listaVacia'] = True
 	return render(request, "booth/welcome.html", context)
 
 
 @login_required(login_url='login')
 def peticionCensoAdmin(request):
-	context={}
+	context = {}
 	if not request.user.is_superuser:
 		return HttpResponseForbidden()
 	else:
-		listaUltimasPeticiones=[]
-		listaUltimasPeticiones=ultimasPeticiones()
+		listaUltimasPeticiones = []
+		listaUltimasPeticiones = ultimasPeticiones()
 		context = {'allPeticiones':listaUltimasPeticiones, 'listaVacia':False}
-		if len(listaUltimasPeticiones)==0:
-			context['listaVacia']=True
+		if len(listaUltimasPeticiones) == 0:
+			context['listaVacia'] = True
 		return render(request, "booth/peticionCensoAdmin.html", context)
+
 
 def peticionCensoUsuario(request):
 	tienePeticion = restriccionPeticion(request.user.id)
@@ -163,11 +156,9 @@ def peticionCensoUsuario(request):
 					obj.save()
 
 				return redirect('welcome')
-			
 
 	context = {'form':form}
 	return render(request, 'booth/peticionCensoUsuario.html', context)
-
 
 '''@login_required(login_url='login')
 def hasVotado(request):
@@ -197,21 +188,23 @@ def registerPage(request):
 
 
 def votacionesPorUsuario(votacionesId, user_id):
-	listaVotaciones=[]
+	listaVotaciones = []
 	totalVotaciones = Voting.objects.all().filter(id__in=votacionesId, end_date__isnull=True)
 	for v in totalVotaciones:
 		votos = Vote.objects.filter(voting_id=v.id, voter_id=user_id)
-		if votos.count()==0:
+		if votos.count() == 0:
 			listaVotaciones.append(v)
 	
 	return listaVotaciones
 
+
 def ultimasVotaciones():
-	listaVotaciones=[]
+	listaVotaciones = []
 	totalVotaciones = Voting.objects.all().filter(end_date__isnull=True).order_by('-start_date')
 	for v in totalVotaciones:
 		listaVotaciones.append(v)
 	return listaVotaciones
+
 
 def listaCensadaIds(user_id):
 	listaCensadaIds = []
@@ -222,12 +215,14 @@ def listaCensadaIds(user_id):
 
 	return listaCensadaIds
 
+
 def ultimasPeticiones():
-	listaPeticiones=[]
+	listaPeticiones = []
 	totalPeticiones = PeticionCenso.objects.all()
 	for t in totalPeticiones:
 		listaPeticiones.append(t)
 	return listaPeticiones
+
 
 @login_required(login_url='login')
 def deletePeticion(request, pk):
@@ -241,13 +236,15 @@ def deletePeticion(request, pk):
 
 	context = {'item':peticion}
 	return render(request, 'booth/deletePeticion.html', context)
+
 	
 def about(request):
     return render(request, "booth/about.html")
 
+
 def restriccionPeticion(voter_id):
 	tienePeticion = False
-	totalPeticiones = PeticionCenso.objects.all().filter(user_id = voter_id)
+	totalPeticiones = PeticionCenso.objects.all().filter(user_id=voter_id)
 	if totalPeticiones.count() != 0:
 		tienePeticion = True
 	return tienePeticion
