@@ -58,8 +58,8 @@ class BoothView(TemplateView):
             raise Http404
         context['KEYBITS'] = settings.KEYBITS
         
-        context['start_date'] = self.format_fecha(context['start_date'])
-        context['end_date'] = self.format_fecha(context['end_date'])
+   '''     context['start_date'] = self.format_fecha(context['start_date'])
+        context['end_date'] = self.format_fecha(context['end_date'])'''
         
         return context
     
