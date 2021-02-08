@@ -36,6 +36,7 @@
 	{% if user.is_authenticated %}
 	<div class="text-center">
 		<h1 style="left: 0; display: inline;">{{ voting.id }} - {{ voting.name }}</h1>
+		<h2> {{voting}} </h2>
 		<div id="voting">
 
 			{% if voted %}
@@ -73,6 +74,6 @@
 		{% endif %}
 		{% endif %}
 		{% endif %}
-		
+
 </body>
 {% endblock %}
