@@ -59,7 +59,7 @@ class BoothView(TemplateView):
         context['start_date'] = self.format_fecha(y['start_date'])
         context['end_date'] = self.format_fecha(y['end_date'])
         
-        return y
+        return context
     
     # formateo fecha "2021-01-12 00:00",
         
