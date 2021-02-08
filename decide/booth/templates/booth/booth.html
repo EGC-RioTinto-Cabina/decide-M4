@@ -35,8 +35,7 @@
 	<link rel="stylesheet" href="{% static 'css/style.css' %}">
 	{% if user.is_authenticated %}
 	<div class="text-center">
-		{% for v in voting %}
-		<h1 style="left: 0; display: inline;">{{ voting_id }} - {{ v.name }} - {{ name }}</h1>
+		<h1 style="left: 0; display: inline;">{{ voting_id }} - {{ v.voting_id.name }} - {{ name }}</h1>
 		<div id="voting">
 
 			{% if voted %}
@@ -73,7 +72,6 @@
 		<a class="btn btn-lg btn-primary" href="{% url 'welcome' %}" role="button">Volver al inicio</a>
 		{% endif %}
 		{% endif %}
-		{% endfor %}
 		{% endif %}
 		
 </body>
