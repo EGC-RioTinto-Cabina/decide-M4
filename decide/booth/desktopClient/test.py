@@ -1,36 +1,27 @@
-from django.contrib.auth.models import User
-from rest_framework.test import APIClient
-from rest_framework.test import APITestCase
-
-from base import mods
+import unittest, requests
+from main import GUI
 
 
-class BaseTestCase(APITestCase):
+class TestStringMethods(unittest.TestCase):
 
-    def setUp(self):
-        self.client = APIClient()
-        self.token = None
-        mods.mock_query(self.client)
+    def test_login(self):
+        username = 'alvaro'
+        password = 'entrar123'
 
-        user_noadmin = User(username='noadmin')
-        user_noadmin.set_password('qwerty')
-        user_noadmin.save()
+        url = 'http://127.0.0.1:8000/gateway/authentication/login/'
+        payload = {'username': username, 'password': password}
 
-        user_admin = User(username='admin', is_staff=True)
-        user_admin.set_password('qwerty')
-        user_admin.save()
+        token = requests.post(url, data=payload).json()["token"]
 
-    def tearDown(self):
-        self.client = None
-        self.token = None
+        result = GUI.login(self, username, password)
+        self.assertEqual(result, token)
 
-    def login(self, user='admin', password='qwerty'):
-        data = {'username': user, 'password': password}
-        response = mods.post('authentication/login', json=data, response=True)
-        self.assertEqual(response.status_code, 200)
-        self.token = response.json().get('token')
-        self.assertTrue(self.token)
-        self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token)
+    def test_wrong_login(self):
+        username = 'alvaro'
+        password = 'entrar122'
 
-    def logout(self):
-        self.client.credentials()
+        result = GUI.login(self, username, password)
+        self.assertEqual(result, None)
+
+if __name__ == '__main__':
+    unittest.main()
