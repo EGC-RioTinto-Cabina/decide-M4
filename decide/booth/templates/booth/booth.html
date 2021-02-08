@@ -35,7 +35,7 @@
 	<link rel="stylesheet" href="{% static 'css/style.css' %}">
 	{% if user.is_authenticated %}
 	<div class="text-center">
-		<h1 style="left: 0; display: inline;">{{ voting.id }} - {{ voting.name }}</h1>
+		<h1 style="left: 0; display: inline;">{{ voting[0] }} - {{ voting."name" }}</h1>
 		<h2> {{voting}} </h2>
 		<div id="voting">
 
