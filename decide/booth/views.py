@@ -71,7 +71,7 @@ class BoothView(TemplateView):
         if fecha != None:
             fecha = fecha.replace("T", " ").replace("Z", "")
             date_time = datetime.datetime.strptime(fecha, '%Y-%m-%d %H:%M:%S.%f')
-            result = date_time.strftime('%d/%m/%Y a las %H:%M:%S')
+            result = date_time.strftime('%d/%m/%Y a las %H:%M:%S:%f')
 
         return result
 
