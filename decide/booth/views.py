@@ -43,7 +43,6 @@ class BoothView(TemplateView):
         
         context = super().get_context_data(**kwargs)
         vid = kwargs.get('voting_id', 0)
-        print(vid)
         try:
             r = mods.get('voting', params={'id': vid})
 
@@ -51,9 +50,10 @@ class BoothView(TemplateView):
             # and avoid problems with js and big number conversion
             for k, v in r[0]['pub_key'].items():
                 r[0]['pub_key'][k] = str(v)
-                print(str(v))
 
             context['voting'] = json.dumps(r[0])
+            print(context['voting'])
+            print(json.dumps(r[0]))
         except:
             raise Http404
         context['KEYBITS'] = settings.KEYBITS
