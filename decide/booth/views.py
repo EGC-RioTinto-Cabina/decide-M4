@@ -32,9 +32,11 @@ from .models import PeticionCenso
 # Create your views here.
 
 
+
 # TODO: check permissions and census
 class BoothView(TemplateView):
     #renderer_classes = [TemplateHTMLRenderer]
+  
     template_name = 'booth/booth.html'
 
     def get_context_data(self, **kwargs):
@@ -56,8 +58,8 @@ class BoothView(TemplateView):
             raise Http404
         context['KEYBITS'] = settings.KEYBITS
         
-        context['start_date'] = self.format_fecha(y['start_date'])
-        context['end_date'] = self.format_fecha(y['end_date'])
+        context['start_date'] = self.format_fecha(context['start_date'])
+        context['end_date'] = self.format_fecha(context['end_date'])
         
         return context
     
