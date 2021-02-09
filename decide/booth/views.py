@@ -58,7 +58,7 @@ class BoothView(TemplateView):
         if(context['voting']['end_date']):
             context['voting']['end_date'] = self.format_fecha(context['voting']['end_date'])
         context['voting']['voted'] = False
-        context['voting']['answerNum'] = null
+        context['voting']['answerNum'] = -1
         print(context)
         print(r[0])
         return context
