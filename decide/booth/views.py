@@ -48,7 +48,7 @@ class BoothView(TemplateView):
                 r[0]['pub_key'][k] = str(v)
 
             context['voting'] = json.dumps(r[0])
-            print(context['voting'])
+            print(context['voting']['name'])
         except:
             raise Http404
 
