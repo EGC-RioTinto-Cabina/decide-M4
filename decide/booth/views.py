@@ -53,6 +53,8 @@ class BoothView(TemplateView):
 
         context['KEYBITS'] = settings.KEYBITS
 
+        print(context)
+        
         return context
     
     # formateo fecha "2021-01-12 00:00",
