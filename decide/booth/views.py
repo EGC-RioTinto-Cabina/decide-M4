@@ -48,7 +48,6 @@ class BoothView(TemplateView):
                 r[0]['pub_key'][k] = str(v)
 
             context['voting'] = json.dumps(r[0])
-            context['name'] = r['name']
             print(context['name'])
             print(r['name'])
         except:
