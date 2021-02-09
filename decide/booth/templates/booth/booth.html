@@ -35,54 +35,49 @@
 	<link rel="stylesheet" href="{% static 'css/style.css' %}">
 	{% if user.is_authenticated %}
 	<div class="text-center">
-		<h1 style="left: 0; display: inline;">{{ voting_id }} - {{ name }}</h1>
+		<h1 style="left: 0; display: inline;">{{ voting.id }} - {{ voting.name }}</h1>
 		<div id="voting">
 
 			{% if voted %}
 			<p class="lead">Usted ya ha votado</p>
-			{% else %} {% if start_date == None%}
+			{% else %} {% if voting.start_date == None%}
 			<p>La votación no ha empezado aún</p>
 
 			{%else%}
-			<p>La votación empezó el: {{ start_date }}</p>
+			<p>La votación empezó el: {{ voting.start_date }}</p>
 		</div>
 		<div class="text-center">
-			{% if question.yesorno %}
-			<h2>{{question.yesorno}}</h2>
 			<h3>{{desc}}</h3>
-
+			{% if voting.type == 'yesorno' %}
 
 			<form id="formulario" method="post" action="{% url 'hasVotado' %}">{% csrf_token %}
 				{{formulario}}
 				<fieldset>
 					<legend>Elige una respuesta</legend>
 					<label>
-						<input type="radio" name="yon" value="{{question.options.y}}">{{question.options.y}}
+						<input type="radio" name="yon" value="yes">Sí
 					</label>
 					<label>
-						<input type="radio" name="yon" value="{{question.options.n}}">{{question.options.n}}
+						<input type="radio" name="yon" value="no">No
 					</label>
 				</fieldset>
 				<input type="submit" value="Vote">
 			</form>
 			{%endif%}
-		</div>
-		<div class="text-center">
-			{% if question.multiple %}
-			<h2>{{question.multiple}}</h2>
-			<h3>{{desc}}</h3>
+
+			{% if voting.type == 'multiple' %}
+
 			<form id="formulario" method="post" action="{% url 'hasVotado' %}">{% csrf_token %}
 				{{formulario}}
 				<fieldset>
-					<legend>Elige una respuesta</legend>
-					{% for i in formulario.choices %}
-					<label>
-						<input type="radio" name="opt" value="{{question.options.i}}">{{question.options.i}}
-					</label>
+					<legend>Elige las respuestas</legend>
+					{% for i in voting.question.options %}
+						<label>
+							<input type="checkbox" name="opt" value="{{i.number}}">{{i.option}}
+						</label>
 					{% endfor %}
 				</fieldset>
 				<input type="submit" value="Vote">
-
 			</form>
 			{%endif%}
 		</div>

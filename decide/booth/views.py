@@ -34,50 +34,12 @@ from .models import PeticionCenso
 
 # TODO: check permissions and census
 class BoothView(TemplateView):
-    #renderer_classes = [TemplateHTMLRenderer]
     template_name = 'booth/booth.html'
-    '''q = Question.objects.create(desc="¿Esto es un ejemplo?")
-    p = PoliticalParty.objects.create(name="Political23313", acronym="P223133", description="Esto es una descripción", leader="Líder2", president="Presidente2")
-    v = Voting.objects.create(name="Votación 1", desc="Esto es un ejemplo", question=q, political_party=p, start_date="2021-01-12 00:00", end_date="2021-01-30 00:00", url="http://localhost:8000/booth/")'''
 
-    '''def get_context_data(self, **kwargs):
-
-        y = {
-            "voting_id": 4,
-            "name": "EGC",
-            "desc": "Aprobar EGC no es fácil",
-            "question": {
-                "yesorno": "¿Vamos a aprobar EGC?",
-                "options": {
-                    "y": "Yes",
-                    "n": "No"}},
-            "start_date":"2021-01-08T15:29:52.040435",
-            "end_date":None,
-            "url":"http://localhost:8000/booth/4",
-            "pub-key": "a1s2d3f4g5h6j7k8l9",
-            "voted": False
-            }
-        
-        x = {
-            "voting_id": 4,
-            "name": "EGC",
-            "desc": "Aprobar EGC no es facil",
-            "question": {
-                "multiple": "¿Vamos a aprobar EGC?",
-                "options": {
-                    1: "Yes",
-                    2: "No",
-                    3: "Pa febrero"}},
-            "start_date":"2021-01-08T15:29:52.040435",
-            "end_date":"2021-01-20T15:29:52.040435",
-            "url":"http://localhost:8000/booth/4",
-            "pub-key": "a1s2d3f4g5h6j7k8l9",
-            "voted": False
-            }
-        
+    def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         vid = kwargs.get('voting_id', 0)
-        print(vid)
+
         try:
             r = mods.get('voting', params={'id': vid})
 
@@ -85,19 +47,22 @@ class BoothView(TemplateView):
             # and avoid problems with js and big number conversion
             for k, v in r[0]['pub_key'].items():
                 r[0]['pub_key'][k] = str(v)
-                print(str(v))
 
-            context['voting'] = json.dumps(r[0])
+            # context['voting'] = json.dumps(r[0])
+            context['voting'] = r[0]
         except:
             raise Http404
+
         context['KEYBITS'] = settings.KEYBITS
-        
-        y['start_date'] = self.format_fecha(y['start_date'])
-        y['end_date'] = self.format_fecha(y['end_date'])
-        y['KEYBITS'] = settings.KEYBITS
-        y['voting'] = json.dumps(y)
-        
-        return y
+        if(context['voting']['start_date']):
+            context['voting']['start_date'] = self.format_fecha(context['voting']['start_date'])
+        if(context['voting']['end_date']):
+            context['voting']['end_date'] = self.format_fecha(context['voting']['end_date'])
+        context['voting']['voted'] = False
+        context['voting']['answerNum'] = -1
+        print(context)
+        print(r[0])
+        return context
     
     # formateo fecha "2021-01-12 00:00",
         
@@ -107,9 +72,9 @@ class BoothView(TemplateView):
         if fecha != None:
             fecha = fecha.replace("T", " ").replace("Z", "")
             date_time = datetime.datetime.strptime(fecha, '%Y-%m-%d %H:%M:%S.%f')
-            result = date_time.strftime('%d/%m/%Y a las %H:%M:%S')
+            result = date_time.strftime('%d/%m/%Y a las %H:%M')
 
-        return result'''
+        return result
 
 
 def loginPage(request):
@@ -144,17 +109,17 @@ def yesOrNo(request):
             print(formulario)
     return render(request, 'booth.html', {'formulario':formulario, 'choice':choice})
 
-'''@login_required(login_url='login')
+@login_required(login_url='login')
 def multiple(request):
     formulario = MultipleForm()
     option = None
     if request.method == 'POST':
-        formulario = Multiple(request.POST)
+        formulario = MultipleForm(request.POST)
         if formulario.is_valid():
             option = MultipleQuestion.objects.filter(option=formulario.cleaned_data['option'])
             print(option)
             print(formulario)
-    return render(request, 'booth.html', {'formularioMultiple':formulario, 'option':option})'''
+    return render(request, 'booth.html', {'formulario':formulario, 'option':option})
 
 
 def welcome(request):
@@ -209,6 +174,8 @@ def peticionCensoUsuario(request):
 def hasVotado(request):
     return render(request, "booth/hasVotado.html")'''
 
+def hasVotado(request):
+    return render(request, 'booth/hasVotado.html')
 
 def logoutUser(request):
 	logout(request)
