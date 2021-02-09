@@ -167,7 +167,9 @@ def peticionCensoUsuario(request):
 def hasVotado(request):
     return render(request, "booth/hasVotado.html")'''
 
-
+def hasVotado(request):
+    return render(request, 'booth/hasVotado.html')
+    
 def logoutUser(request):
 	logout(request)
 	return redirect('welcome')
