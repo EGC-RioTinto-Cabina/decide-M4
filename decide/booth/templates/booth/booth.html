@@ -35,7 +35,7 @@
 	<link rel="stylesheet" href="{% static 'css/style.css' %}">
 	{% if user.is_authenticated %}
 	<div class="text-center">
-		<h1 style="left: 0; display: inline;">{{ voting }} - {{ voting.name }}</h1>
+		<h1 style="left: 0; display: inline;">{{ voting.id }} - {{ voting.name }}</h1>
 		<div id="voting">
 
 			{% if voted %}
@@ -44,11 +44,11 @@
 			<p>La votación no ha empezado aún</p>
 
 			{%else%}
-			<p>La votación empezó el: {{ start_date }}</p>
+			<p>La votación empezó el: {{ voting.start_date }}</p>
 		</div>
 		<div class="text-center">
 			<h3>{{desc}}</h3>
-			{% if type.yesorno %}
+			{% if voting.type == 'yesorno' %}
 
 			<form id="formulario" method="post" action="{% url 'hasVotado' %}">{% csrf_token %}
 				{{formulario}}
