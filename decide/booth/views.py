@@ -47,13 +47,18 @@ class BoothView(TemplateView):
             for k, v in r[0]['pub_key'].items():
                 r[0]['pub_key'][k] = str(v)
 
-            #context['voting'] = json.dumps(r[0])
+            # context['voting'] = json.dumps(r[0])
             context['voting'] = r[0]
         except:
             raise Http404
 
         context['KEYBITS'] = settings.KEYBITS
-        context['voting']['start_date'] = self.format_fecha(context['voting']['start_date'])
+        if(context['voting']['start_date']):
+            context['voting']['start_date'] = self.format_fecha(context['voting']['start_date'])
+        if(context['voting']['end_date']):
+            context['voting']['end_date'] = self.format_fecha(context['voting']['end_date'])
+        context['voting']['voted'] = False
+        context['voting']['answerNum'] = null
         print(context)
         print(r[0])
         return context
@@ -66,7 +71,7 @@ class BoothView(TemplateView):
         if fecha != None:
             fecha = fecha.replace("T", " ").replace("Z", "")
             date_time = datetime.datetime.strptime(fecha, '%Y-%m-%d %H:%M:%S.%f')
-            result = date_time.strftime('%d/%m/%Y a las %H:%M:%S:%f')
+            result = date_time.strftime('%d/%m/%Y a las %H:%M')
 
         return result
 
@@ -167,8 +172,10 @@ def peticionCensoUsuario(request):
 def hasVotado(request):
     return render(request, "booth/hasVotado.html")'''
 
+
 def hasVotado(request):
     return render(request, 'booth/hasVotado.html')
+
     
 def logoutUser(request):
 	logout(request)
