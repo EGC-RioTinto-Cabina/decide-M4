@@ -1,7 +1,9 @@
-import gi, django.contrib.auth.hashers, sys, requests
+import gi, django.contrib.auth.hashers, sys, requests, random, json
+
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
-from gi.repository.Gdk import Color
+from gi.repository.Gdk import Color, RGBA
+
 
 class GUI:
     def __init__(self):
@@ -10,10 +12,6 @@ class GUI:
         self.builder = Gtk.Builder()
         self.builder.add_from_file('main.ui')
         self.builder.connect_signals(self)
-
-        self.builder.get_object('username').set_text("alvaro")
-        self.builder.get_object('password').set_text("entrar123")
-        self.builder.get_object('votingId').set_text("1")
 
         window = self.builder.get_object('window')
         window.show_all()
@@ -59,8 +57,13 @@ class GUI:
                 check_voting_access = self.check_voting_access(user, voting_id)
 
                 if check_voting_access:
-                    self.voting(user, voting_id)
+                    voting = self.find_voting(voting_id)
 
+                    votingWin = VotingWindow(token, user, voting)
+                    votingWin.show_all()
+                    votingWin.fullscreen()
+                else:
+                    self.builder.get_object('votingIdLabelError').set_text("Voting not found")
 
     def login(self, username, password):
         url = 'http://127.0.0.1:8000/gateway/authentication/login/'
@@ -98,79 +101,85 @@ class GUI:
             voting_id_ok = r.json() == "Valid voter"
             if voting_id_ok == False:
                 self.builder.get_object('votingIdLabelError').set_text("You don't have access to this voting")
-        else:
-            self.builder.get_object('votingIdLabelError').set_text("Voting not found")
 
         return end_date_ok and voting_id_ok
 
-    def voting(self, user, voting_id):
+    def find_voting(self, voting_id):
         url = 'http://localhost:8000/voting/?id=' + str(voting_id)
         r = requests.get(url)
         voting = r.json()[0]
 
-        votingWin = VotingWindow(voting)
-        votingWin.show_all()
-        votingWin.fullscreen()
+        return voting
+
 
 class VotingWindow(Gtk.Window):
-    def __init__(self, voting):
+    def __init__(self, token, user, voting):
         Gtk.Window.__init__(self, title=str(voting["id"]) + " - " + str(voting["name"]))
+
+        self.voting = voting
+        self.user = user
+        self.token = token
 
         self.box = Gtk.Box(spacing=6, orientation="vertical")
         self.add(self.box)
 
         self.label = Gtk.Label(label=str(voting["id"]) + " - " + str(voting["name"]))
         self.box.pack_start(self.label, True, True, 0)
-        self.label = Gtk.Label(label="Ejemplo de pregunta")
+        question = voting["question"]
+        self.label = Gtk.Label(label=question["desc"])
         self.box.pack_start(self.label, True, True, 0)
-        radioButton1 = Gtk.RadioButton("Opción 1")
-        self.box.pack_start(radioButton1, True, True, 0)
-        radioButton2 = Gtk.RadioButton.new_from_widget(radioButton1)
-        radioButton2.set_label("Opción 2")
-        self.box.pack_start(radioButton2, True, True, 0)
-        radioButton3 = Gtk.RadioButton.new_from_widget(radioButton1)
-        radioButton3.set_label("Opción 3")
-        self.box.pack_start(radioButton3, True, True, 0)
-        '''
-        self.cur.execute("SELECT question_id from voting_voting_question where voting_id = %s", [voting[0]])
-        questionsIdentifiers = self.cur.fetchall()
+        options = question["options"]
 
-        questions = []
-        questionsOptions = []
+        i = 1
+        for op in options:
+            if i == 1:
+                self.radioButton1 = Gtk.RadioButton(op["option"])
+                self.box.pack_start(self.radioButton1, True, True, 0)
+                self.radioButton1.toggled
+            else:
+                self.radioButton2 = Gtk.RadioButton.new_from_widget(self.radioButton1)
+                self.radioButton2.set_label(op["option"])
+                self.box.pack_start(self.radioButton2, True, True, 0)
+                self.radioButton2.toggled()
 
-        for questionId in questionsIdentifiers:
-            self.cur.execute("SELECT * from voting_question where id = %s", [questionId[0]])
-            question = self.cur.fetchall()
-            questions.append((question[0][0], question[0][1]))
+            i = i + 1
 
-        for q in questions:
-            self.cur.execute("SELECT * from voting_questionoption where question_id = %s", [q[0]])
-            options = self.cur.fetchall()
-            for option in options:
-                questionsOptions.append((option[0], option[1], option[2], option[3]))
+        self.sendButton = Gtk.Button.new_with_label("Votar")
+        self.sendButton.connect("clicked", self.on_send_button_clicked)
+        self.box.pack_start(self.sendButton, True, True, 0)
 
-        for q in questions:
-            question_description = Gtk.Label(label="Question: "+str(q[1]))
-            self.box.pack_start(question_description, True, True, 0)
+    def on_radio_button_toggled(self, radiobutton):
+        if radiobutton.get_active():
+            print("%s is active" % (radiobutton.get_label()))
 
-            for option in questionsOptions:
-                i = 0
-                if option[3] == q[0]:
-                    if i == 0:
-                        radioButton1 = Gtk.RadioButton("Option: "+str(option[0]))
-                        self.box.pack_start(radioButton1, True, True, 0)
-                    else:
-                        radioButton2 = Gtk.RadioButton.new_from_widget(radioButton1)
-                        radioButton2.set_label("Option: "+str(option[0]))
-                        self.box.pack_start(radioButton2, True, True, 0)
-        '''
-        sendButton = Gtk.Button.new_with_label("Votar")
-        self.box.pack_start(sendButton, True, True, 0)
+    def on_send_button_clicked(self, button):
+        active = next((
+            radio for radio in
+            self.radioButton1.get_group()
+            if radio.get_active()
+        ))
+
+        votingOption = ""
+        for op in self.voting["question"]["options"]:
+            if op["option"] == active.get_label():
+                votingOption = op["number"]
+
+        url = 'http://127.0.0.1:8000/gateway/store/'
+        payload = {
+            'vote': {'a': self.voting["id"], 'b': votingOption},
+            'voting': self.voting["id"],
+            'voter': self.user["id"],
+            'token': self.token
+        }
+
+        headers = {'Content-type': 'application/json'}
+        r = requests.post(url, data=json.dumps(payload), headers=headers)
+        self.sendButton.set_label(" Conglatulations. Your vote has been sent. \r         Click again to close this window")
+        self.sendButton.connect("clicked", self.on_logout_clicked)
 
     def on_logout_clicked(self, window):
-        user = []
-        Gtk.VotingWindow.destroy()
-
+        self.token = ""
+        self.destroy()
 
 
 def main():
