@@ -27,6 +27,7 @@ from django.http import HttpResponseForbidden
 from .forms import CrearUsuario
 from .forms import PeticionForm
 from .models import PeticionCenso
+from __builtin__ import True
 
 # Create your views here.
 
@@ -38,6 +39,7 @@ class BoothView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         vid = kwargs.get('voting_id', 0)
+        user_id = getUsuario(self)
 
         try:
             r = mods.get('voting', params={'id': vid})
@@ -49,6 +51,8 @@ class BoothView(TemplateView):
 
             # context['voting'] = json.dumps(r[0])
             context['voting'] = r[0]
+            
+            checkUsuarioVoto(vid, user_id)
         except:
             raise Http404
 
@@ -108,6 +112,11 @@ def yesOrNo(request):
             print(formulario)
     return render(request, 'booth.html', {'formulario':formulario, 'choice':choice})
 
+
+def getUsuario(self):
+    return self.request.user.id
+
+    
 '''@login_required(login_url='login')
 def multiple(request):
     formulario = MultipleForm()
@@ -209,7 +218,13 @@ def votacionesPorUsuario(votacionesId, user_id):
 	
 	return listaVotaciones
 
-
+def checkUsuarioVoto(votacionesId, user_id):
+    a = False
+    numVoto = Voting.objects.filter(voting_id=votacionesId, voter_id=user_id).count()
+    if numVoto !=0:
+        a = True
+    return a    
+    
 def ultimasVotaciones():
 	listaVotaciones = []
 	totalVotaciones = Voting.objects.all().filter(end_date__isnull=True).order_by('-start_date')
