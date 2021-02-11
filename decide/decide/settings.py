@@ -165,6 +165,8 @@ KEYBITS = 256
 ALLOWED_VERSIONS = ['v1', 'v2']
 DEFAULT_VERSION = 'v1'
 
+BASEURL= "https://riotinto-m4.herokuapp.com"
+
 try:
     from local_settings import *
 except ImportError:
@@ -180,3 +182,6 @@ if os.path.exists("config.jsonnet"):
 
 
 INSTALLED_APPS = INSTALLED_APPS + MODULES
+
+import django_heroku
+django_heroku.settings(locals())
