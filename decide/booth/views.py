@@ -40,7 +40,9 @@ class BoothView(TemplateView):
         context = super().get_context_data(**kwargs)
         vid = kwargs.get('voting_id', 0)
         user_id = getUsuario(self)
-
+        
+        context['voted'] = checkUsuarioVoto(vid, user_id)
+        
         try:
             r = mods.get('voting', params={'id': vid})
 
@@ -52,7 +54,6 @@ class BoothView(TemplateView):
             # context['voting'] = json.dumps(r[0])
             context['voting'] = r[0]
             
-            checkUsuarioVoto(vid, user_id)
         except:
             raise Http404
 
@@ -61,8 +62,7 @@ class BoothView(TemplateView):
             context['voting']['start_date'] = self.format_fecha(context['voting']['start_date'])
         if(context['voting']['end_date']):
             context['voting']['end_date'] = self.format_fecha(context['voting']['end_date'])
-        context['voting']['voted'] = False
-        context['voting']['answerNum'] = -1
+
         print(context)
         print(r[0])
         return context
