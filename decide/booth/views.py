@@ -38,6 +38,7 @@ class BoothView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         vid = kwargs.get('voting_id', 0)
+
         user_id = getUsuario(self)
         listaCenso = listaCensadaIds(user_id)
         if vid in listaCenso:
@@ -151,7 +152,7 @@ def peticionCensoUsuario(request):
 
 
 def hasVotado(request):
-    return render(request, 'booth/hasVotado.html')
+    return render(request, "booth/hasVotado.html")
 
     
 def logoutUser(request):

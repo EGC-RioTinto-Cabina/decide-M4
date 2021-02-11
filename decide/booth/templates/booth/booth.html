@@ -40,6 +40,7 @@
 
 			{% if voted %}
 			<p class="lead">Usted ya ha votado</p>
+
 			{% else %}
 			{% if voting.id == None %}
 			<h1>Usted no está censado en esta votación</h1>
@@ -63,6 +64,21 @@
 					<label>
 						<input type="radio" name="yon" value="no">No
 					</label>
+				</fieldset>
+				<input type="submit" value="Vote">
+			</form>
+			{%endif%}
+			{% if voting.type == 'multiple' %}
+
+			<form id="formulario" method="post" action="{% url 'hasVotado' %}">{% csrf_token %}
+				{{formulario}}
+				<fieldset>
+					<legend>Elige las respuestas</legend>
+					{% for i in voting.question.options %}
+						<label>
+							<input type="checkbox" name="opt" value="{{i.number}}">{{i.option}}
+						</label>
+					{% endfor %}
 				</fieldset>
 				<input type="submit" value="Vote">
 			</form>
