@@ -43,9 +43,8 @@
 			{% else %}
 			{% if voting.id == None %}
 			<h1>Usted no está censado en esta votación</h1>
-			{% endif %}
-			{% if voting.start_date == None%}
-			<p>La votación no ha empezado aún</p>
+			{% elseif voting.start_date == None%}
+			<h1>La votación no ha empezado aún</h1>
 
 			{%else%}
 			<p>La votación empezó el: {{ voting.start_date }}</p>
