@@ -99,7 +99,7 @@ def loginPage(request):
 		    return render(request, 'booth/login.html', context)
 
 
-def getUsuario(request):
+def getUsuario(self):
     return self.request.user.id
 
 
