@@ -42,7 +42,6 @@ class BoothView(TemplateView):
         user_id = getUsuario(self)
         print("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA", vid)
         print("BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBbbb", user_id)
-        print("SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS", self.get(user.id))
         context['voted'] = checkUsuarioVoto(vid, user_id)
         
         try:
@@ -102,20 +101,9 @@ def loginPage(request):
 		    return render(request, 'booth/login.html', context)
 
 
-def getUsuario(self):
-    return self.request.user.id
+def getUsuario(request):
+    return request.user.id
     
-'''@login_required(login_url='login')
-def multiple(request):
-    formulario = MultipleForm()
-    option = None
-    if request.method == 'POST':
-        formulario = Multiple(request.POST)
-        if formulario.is_valid():
-            option = MultipleQuestion.objects.filter(option=formulario.cleaned_data['option'])
-            print(option)
-            print(formulario)
-    return render(request, 'booth.html', {'formularioMultiple':formulario, 'option':option})'''
 
 
 def welcome(request):
