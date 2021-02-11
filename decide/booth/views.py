@@ -103,7 +103,7 @@ def loginPage(request):
 
 
 def getUsuario(request):
-    return request.user.id
+    return request.user
 
 
 def welcome(request):
