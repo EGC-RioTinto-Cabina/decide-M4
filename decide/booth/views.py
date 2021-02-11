@@ -27,7 +27,6 @@ from django.http import HttpResponseForbidden
 from .forms import CrearUsuario
 from .forms import PeticionForm
 from .models import PeticionCenso
-from django.template.context_processors import request
 
 # Create your views here.
 
@@ -103,7 +102,7 @@ def loginPage(request):
 
 
 def getUsuario(request):
-    return request.user
+    return request.user.id
 
 
 def welcome(request):
