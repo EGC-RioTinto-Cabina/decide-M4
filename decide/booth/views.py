@@ -40,10 +40,8 @@ class BoothView(TemplateView):
         context = super().get_context_data(**kwargs)
         vid = kwargs.get('voting_id', 0)
         user_id = getUsuario(self)
-        print("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA", vid)
-        print("BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBbbb", user_id)
         context['voted'] = checkUsuarioVoto(vid, user_id)
-        v = Vote.objects.create(voting_id=vid,voter_id=user_id)
+        v = Vote.objects.create(voting_id=int(vid),voter_id=int(user_id))
         try:
             r = mods.get('voting', params={'id': vid})
 
