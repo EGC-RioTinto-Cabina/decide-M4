@@ -27,7 +27,6 @@ from django.http import HttpResponseForbidden
 from .forms import CrearUsuario
 from .forms import PeticionForm
 from .models import PeticionCenso
-from __builtin__ import True
 
 # Create your views here.
 
