@@ -40,8 +40,12 @@
 
 			{% if voted %}
 			<p class="lead">Usted ya ha votado</p>
-			{% else %} {% if voting.start_date == None%}
-			<p>La votación no ha empezado aún</p>
+
+			{% else %}
+			{% if voting.id == None %}
+			<h1>Usted no está censado en esta votación</h1>
+			{% elif voting.start_date == None%}
+			<h1>La votación no ha empezado aún</h1>
 
 			{%else%}
 			<p>La votación empezó el: {{ voting.start_date }}</p>
@@ -64,7 +68,6 @@
 				<input type="submit" value="Vote">
 			</form>
 			{%endif%}
-
 			{% if voting.type == 'multiple' %}
 
 			<form id="formulario" method="post" action="{% url 'hasVotado' %}">{% csrf_token %}
@@ -82,19 +85,13 @@
 			{%endif%}
 		</div>
 
-		{%if end_date == None%}
-		<p>Aún puede votar, no ha finalizado la votación</p>
-		{% else %}
-		<p>Ya no puede votar, la votación se cerró el: {{ end_date }}</p>
+		{% endif %}
+		{% if not user.is_authenticated %}
+		<h2>Tiene que iniciar sesión para acceder a esta página.</h2>
+		<a class="btn btn-lg btn-primary" href="{% url 'welcome' %}" role="button">Volver al inicio</a>
+		{% endif %}
+		{% endif %}
 		{% endif %}
 
-		{% endif %}
-		{% endif %}
-	</div>
-	{% endif %}
-	{% if not user.is_authenticated %}
-	<h2>Tiene que iniciar sesión para acceder a esta página.</h2>
-	<a class="btn btn-lg btn-primary" href="{% url 'welcome' %}" role="button">Volver al inicio</a>
-	{% endif %}
 </body>
 {% endblock %}
