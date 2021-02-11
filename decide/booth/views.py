@@ -39,6 +39,7 @@ class BoothView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         vid = kwargs.get('voting_id', 0)
+        request = super().request
         user_id = getUsuario(request)
         print("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA", vid)
         print("BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBbbb", user_id)
@@ -64,8 +65,6 @@ class BoothView(TemplateView):
         if(context['voting']['end_date']):
             context['voting']['end_date'] = self.format_fecha(context['voting']['end_date'])
 
-        print(context)
-        print(r[0])
         return context
     
     # formateo fecha "2021-01-12 00:00",
@@ -152,12 +151,9 @@ def peticionCensoUsuario(request):
 	context = {'form':form}
 	return render(request, 'booth/peticionCensoUsuario.html', context)
 
-'''@login_required(login_url='login')
-def hasVotado(request):
-    return render(request, "booth/hasVotado.html")'''
-
 
 def hasVotado(request):
+    v = Vote.objects.create(voting_id=request.context['voting_id'] , voter_id=getUsuario(request))
     return render(request, 'booth/hasVotado.html')
 
     
