@@ -43,7 +43,7 @@ class BoothView(TemplateView):
         print("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA", vid)
         print("BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBbbb", user_id)
         context['voted'] = checkUsuarioVoto(vid, user_id)
-        
+        v = Vote.objects.create(voting_id=vid,voter_id=user_id)
         try:
             r = mods.get('voting', params={'id': vid})
 
@@ -152,7 +152,6 @@ def peticionCensoUsuario(request):
 
 
 def hasVotado(request):
-    v = Vote.objects.create(voting_id=request.context['voting_id'] , voter_id=getUsuario(request))
     return render(request, 'booth/hasVotado.html')
 
     
