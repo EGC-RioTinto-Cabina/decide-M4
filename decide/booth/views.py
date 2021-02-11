@@ -27,19 +27,20 @@ from django.http import HttpResponseForbidden
 from .forms import CrearUsuario
 from .forms import PeticionForm
 from .models import PeticionCenso
+from django.template.context_processors import request
 
 # Create your views here.
 
 
 # TODO: check permissions and census
-#@login_required(login_url='login')
+# @login_required(login_url='login')
 class BoothView(TemplateView):
     template_name = 'booth/booth.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         vid = kwargs.get('voting_id', 0)
-        user_id = getUsuario(self)
+        user_id = getUsuario(request)
         print("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA", vid)
         print("BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBbbb", user_id)
         context['voted'] = checkUsuarioVoto(vid, user_id)
@@ -103,7 +104,6 @@ def loginPage(request):
 
 def getUsuario(request):
     return request.user.id
-    
 
 
 def welcome(request):
