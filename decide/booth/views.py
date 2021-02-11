@@ -28,76 +28,43 @@ from .forms import CrearUsuario
 from .forms import PeticionForm
 from .models import PeticionCenso
 
-
 # Create your views here.
 
 
 # TODO: check permissions and census
 class BoothView(TemplateView):
-    #renderer_classes = [TemplateHTMLRenderer]
     template_name = 'booth/booth.html'
-    '''q = Question.objects.create(desc="¿Esto es un ejemplo?")
-    p = PoliticalParty.objects.create(name="Political23313", acronym="P223133", description="Esto es una descripción", leader="Líder2", president="Presidente2")
-    v = Voting.objects.create(name="Votación 1", desc="Esto es un ejemplo", question=q, political_party=p, start_date="2021-01-12 00:00", end_date="2021-01-30 00:00", url="http://localhost:8000/booth/")'''
 
-    '''def get_context_data(self, **kwargs):
-
-        y = {
-            "voting_id": 4,
-            "name": "EGC",
-            "desc": "Aprobar EGC no es fácil",
-            "question": {
-                "yesorno": "¿Vamos a aprobar EGC?",
-                "options": {
-                    "y": "Yes",
-                    "n": "No"}},
-            "start_date":"2021-01-08T15:29:52.040435",
-            "end_date":None,
-            "url":"http://localhost:8000/booth/4",
-            "pub-key": "a1s2d3f4g5h6j7k8l9",
-            "voted": False
-            }
-        
-        x = {
-            "voting_id": 4,
-            "name": "EGC",
-            "desc": "Aprobar EGC no es facil",
-            "question": {
-                "multiple": "¿Vamos a aprobar EGC?",
-                "options": {
-                    1: "Yes",
-                    2: "No",
-                    3: "Pa febrero"}},
-            "start_date":"2021-01-08T15:29:52.040435",
-            "end_date":"2021-01-20T15:29:52.040435",
-            "url":"http://localhost:8000/booth/4",
-            "pub-key": "a1s2d3f4g5h6j7k8l9",
-            "voted": False
-            }
-        
+    def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         vid = kwargs.get('voting_id', 0)
-        print(vid)
-        try:
-            r = mods.get('voting', params={'id': vid})
 
-            # Casting numbers to string to manage in javascript with BigInt
-            # and avoid problems with js and big number conversion
-            for k, v in r[0]['pub_key'].items():
-                r[0]['pub_key'][k] = str(v)
-                print(str(v))
+        user_id = getUsuario(self)
+        listaCenso = listaCensadaIds(user_id)
+        if vid in listaCenso:
+            context['voted'] = checkUsuarioVoto(vid, user_id)
+            v = Vote.objects.create(voting_id=int(vid), voter_id=int(user_id))
+            try:
+                r = mods.get('voting', params={'id': vid})
 
-            context['voting'] = json.dumps(r[0])
-        except:
-            raise Http404
-        context['KEYBITS'] = settings.KEYBITS
-        
-        y['start_date'] = self.format_fecha(y['start_date'])
-        y['end_date'] = self.format_fecha(y['end_date'])
-        y['KEYBITS'] = settings.KEYBITS
-        y['voting'] = json.dumps(y)
-        
-        return y
+                # Casting numbers to string to manage in javascript with BigInt
+                # and avoid problems with js and big number conversion
+                for k, v in r[0]['pub_key'].items():
+                    r[0]['pub_key'][k] = str(v)
+
+                    # context['voting'] = json.dumps(r[0])
+                    context['voting'] = r[0]
+            
+            except:
+                raise Http404
+
+            context['KEYBITS'] = settings.KEYBITS
+            if(context['voting']['start_date']):
+                context['voting']['start_date'] = self.format_fecha(context['voting']['start_date'])
+            if(context['voting']['end_date']):
+                context['voting']['end_date'] = self.format_fecha(context['voting']['end_date'])
+
+        return context
     
     # formateo fecha "2021-01-12 00:00",
         
@@ -107,9 +74,9 @@ class BoothView(TemplateView):
         if fecha != None:
             fecha = fecha.replace("T", " ").replace("Z", "")
             date_time = datetime.datetime.strptime(fecha, '%Y-%m-%d %H:%M:%S.%f')
-            result = date_time.strftime('%d/%m/%Y a las %H:%M:%S')
+            result = date_time.strftime('%d/%m/%Y a las %H:%M')
 
-        return result'''
+        return result
 
 
 def loginPage(request):
@@ -132,55 +99,35 @@ def loginPage(request):
 		    return render(request, 'booth/login.html', context)
 
 
-@login_required(login_url='login')
-def yesOrNo(request):
-    formulario = YesOrNoForm()
-    choice = None
-    if request.method == 'POST':
-        formulario = YesOrNoForm(request.POST)
-        if formulario.is_valid():
-            choice = YesOrNoQuestion.objects.filter(choice=formulario.cleaned_data['choice'])
-            print(choice)
-            print(formulario)
-    return render(request, 'booth.html', {'formulario':formulario, 'choice':choice})
-
-'''@login_required(login_url='login')
-def multiple(request):
-    formulario = MultipleForm()
-    option = None
-    if request.method == 'POST':
-        formulario = Multiple(request.POST)
-        if formulario.is_valid():
-            option = MultipleQuestion.objects.filter(option=formulario.cleaned_data['option'])
-            print(option)
-            print(formulario)
-    return render(request, 'booth.html', {'formularioMultiple':formulario, 'option':option})'''
+def getUsuario(self):
+    return self.request.user.id
 
 
 def welcome(request):
-	context={}
-	listaUltimasVotaciones=[]
-	listaUltimasVotaciones=ultimasVotaciones()
-	listaCensada=listaCensadaIds(request.user.id)
-	votacionesUsuarioCensado=votacionesPorUsuario(listaCensada, request.user.id)
+	context = {}
+	listaUltimasVotaciones = []
+	listaUltimasVotaciones = ultimasVotaciones()
+	listaCensada = listaCensadaIds(request.user.id)
+	votacionesUsuarioCensado = votacionesPorUsuario(listaCensada, request.user.id)
 	context = {'allVotaciones':listaUltimasVotaciones, 'votacionesCensado':votacionesUsuarioCensado, 'listaVacia':False}
-	if len(votacionesUsuarioCensado)==0:
-		context['listaVacia']=True
+	if len(votacionesUsuarioCensado) == 0:
+		context['listaVacia'] = True
 	return render(request, "booth/welcome.html", context)
 
 
 @login_required(login_url='login')
 def peticionCensoAdmin(request):
-	context={}
+	context = {}
 	if not request.user.is_superuser:
 		return HttpResponseForbidden()
 	else:
-		listaUltimasPeticiones=[]
-		listaUltimasPeticiones=ultimasPeticiones()
+		listaUltimasPeticiones = []
+		listaUltimasPeticiones = ultimasPeticiones()
 		context = {'allPeticiones':listaUltimasPeticiones, 'listaVacia':False}
-		if len(listaUltimasPeticiones)==0:
-			context['listaVacia']=True
+		if len(listaUltimasPeticiones) == 0:
+			context['listaVacia'] = True
 		return render(request, "booth/peticionCensoAdmin.html", context)
+
 
 def peticionCensoUsuario(request):
 	tienePeticion = restriccionPeticion(request.user.id)
@@ -199,17 +146,15 @@ def peticionCensoUsuario(request):
 					obj.save()
 
 				return redirect('welcome')
-			
 
 	context = {'form':form}
 	return render(request, 'booth/peticionCensoUsuario.html', context)
 
 
-'''@login_required(login_url='login')
 def hasVotado(request):
-    return render(request, "booth/hasVotado.html")'''
+    return render(request, "booth/hasVotado.html")
 
-
+    
 def logoutUser(request):
 	logout(request)
 	return redirect('welcome')
@@ -233,21 +178,31 @@ def registerPage(request):
 
 
 def votacionesPorUsuario(votacionesId, user_id):
-	listaVotaciones=[]
+	listaVotaciones = []
 	totalVotaciones = Voting.objects.all().filter(id__in=votacionesId, end_date__isnull=True)
 	for v in totalVotaciones:
 		votos = Vote.objects.filter(voting_id=v.id, voter_id=user_id)
-		if votos.count()==0:
+		if votos.count() == 0:
 			listaVotaciones.append(v)
 	
 	return listaVotaciones
 
+
+def checkUsuarioVoto(votacionesId, user_id):
+    a = False
+    numVoto = Vote.objects.filter(voting_id=votacionesId, voter_id=user_id).count()
+    if numVoto != 0:
+        a = True
+    return a    
+
+    
 def ultimasVotaciones():
-	listaVotaciones=[]
+	listaVotaciones = []
 	totalVotaciones = Voting.objects.all().filter(end_date__isnull=True).order_by('-start_date')
 	for v in totalVotaciones:
 		listaVotaciones.append(v)
 	return listaVotaciones
+
 
 def listaCensadaIds(user_id):
 	listaCensadaIds = []
@@ -258,12 +213,14 @@ def listaCensadaIds(user_id):
 
 	return listaCensadaIds
 
+
 def ultimasPeticiones():
-	listaPeticiones=[]
+	listaPeticiones = []
 	totalPeticiones = PeticionCenso.objects.all()
 	for t in totalPeticiones:
 		listaPeticiones.append(t)
 	return listaPeticiones
+
 
 @login_required(login_url='login')
 def deletePeticion(request, pk):
@@ -277,13 +234,15 @@ def deletePeticion(request, pk):
 
 	context = {'item':peticion}
 	return render(request, 'booth/deletePeticion.html', context)
+
 	
 def about(request):
     return render(request, "booth/about.html")
 
+
 def restriccionPeticion(voter_id):
 	tienePeticion = False
-	totalPeticiones = PeticionCenso.objects.all().filter(user_id = voter_id)
+	totalPeticiones = PeticionCenso.objects.all().filter(user_id=voter_id)
 	if totalPeticiones.count() != 0:
 		tienePeticion = True
 	return tienePeticion
