@@ -39,8 +39,7 @@ class BoothView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         vid = kwargs.get('voting_id', 0)
-        request = super().request
-        user_id = getUsuario(request)
+        user_id = getUsuario(self)
         print("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA", vid)
         print("BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBbbb", user_id)
         context['voted'] = checkUsuarioVoto(vid, user_id)
