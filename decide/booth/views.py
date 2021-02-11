@@ -32,7 +32,7 @@ from .models import PeticionCenso
 
 
 # TODO: check permissions and census
-@login_required(login_url='login')
+#@login_required(login_url='login')
 class BoothView(TemplateView):
     template_name = 'booth/booth.html'
 
