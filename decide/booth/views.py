@@ -32,6 +32,7 @@ from .models import PeticionCenso
 
 
 # TODO: check permissions and census
+@login_required(login_url='login')
 class BoothView(TemplateView):
     template_name = 'booth/booth.html'
 
@@ -39,7 +40,9 @@ class BoothView(TemplateView):
         context = super().get_context_data(**kwargs)
         vid = kwargs.get('voting_id', 0)
         user_id = getUsuario(self)
-        
+        print("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA", vid)
+        print("BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBbbb", user_id)
+        print("SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS", self.get(request.user.id))
         context['voted'] = checkUsuarioVoto(vid, user_id)
         
         try:
@@ -99,22 +102,8 @@ def loginPage(request):
 		    return render(request, 'booth/login.html', context)
 
 
-@login_required(login_url='login')
-def yesOrNo(request):
-    formulario = YesOrNoForm()
-    choice = None
-    if request.method == 'POST':
-        formulario = YesOrNoForm(request.POST)
-        if formulario.is_valid():
-            choice = YesOrNoQuestion.objects.filter(choice=formulario.cleaned_data['choice'])
-            print(choice)
-            print(formulario)
-    return render(request, 'booth.html', {'formulario':formulario, 'choice':choice})
-
-
 def getUsuario(self):
     return self.request.user.id
-
     
 '''@login_required(login_url='login')
 def multiple(request):
@@ -217,12 +206,14 @@ def votacionesPorUsuario(votacionesId, user_id):
 	
 	return listaVotaciones
 
+
 def checkUsuarioVoto(votacionesId, user_id):
     a = False
-    numVoto = Voting.objects.filter(voting_id=votacionesId, voter_id=user_id).count()
-    if numVoto !=0:
+    numVoto = Vote.objects.filter(voting_id=votacionesId, voter_id=user_id).count()
+    if numVoto != 0:
         a = True
     return a    
+
     
 def ultimasVotaciones():
 	listaVotaciones = []
