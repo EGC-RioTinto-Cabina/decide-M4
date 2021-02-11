@@ -42,7 +42,7 @@ class BoothView(TemplateView):
         user_id = getUsuario(self)
         print("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA", vid)
         print("BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBbbb", user_id)
-        print("SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS", self.get(request.user.id))
+        print("SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS", self.get(user.id))
         context['voted'] = checkUsuarioVoto(vid, user_id)
         
         try:
