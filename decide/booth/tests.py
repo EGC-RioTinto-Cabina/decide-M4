@@ -87,9 +87,7 @@ class PeticionTestCase(BaseTestCase):
             )]
     qs = MockSet(expected_results[0])
     mocker.patch.object(Voting.objects, 'get_queryset', return_value=qs)
-
     result = list(Voting.objects.get_id(4))
-
     assert result == expected_results
     assert str(result[0]) == expected_results[0].code
     
@@ -109,15 +107,11 @@ class PeticionTestCase(BaseTestCase):
             pubkey="a1s2d3f4g5h3j7k8l9",
             voted=False
             )]
-
         qs = MockSet(expected_results[0])
         mocker.patch.object(Voting.objects, 'get_queryset', return_value=qs)
-
         result = list(Voting.objects.get_id(4))
-
         assert result != expected_results
         assert str(result[0]) != expected_results[0].code
-
     
     def test_expected_serialized_json(self):
         expected_results = {
@@ -140,7 +134,6 @@ class PeticionTestCase(BaseTestCase):
     
         assert results == expected_results
     
-
     def test_raise_error_when_missing_required_field(self):
         incomplete_data = {
             "voting_id": 4,
@@ -155,17 +148,13 @@ class PeticionTestCase(BaseTestCase):
             "pub-key": "a1s2d3f4g5h6j7k8l9",
             "voted": False
             }
-
         serializer = VotingSerializer(data=incomplete_data)
-
         with pytest.raises(ValidationError):
             serializer.is_valid(raise_exception=True)    
-
             
     def test_list(self, rf, mocker):
         url = self.client.get('/booth/', follow=True) 
         request = rf.get(url)
-
         queryset = MockSet(
                 Voting(
                     voting_id=4,
@@ -183,10 +172,8 @@ class PeticionTestCase(BaseTestCase):
                     voted=False
                     )
                 )
-
         mocker.patch.object(BoothView, 'get_queryset', return_value=queryset)
         response = BoothView.as_view({'get': 'list'})(request).render()
-
         assert response.status_code == 200
         assert len(json.loads(response.content)) == 1'''
 
