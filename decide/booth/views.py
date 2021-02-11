@@ -40,7 +40,7 @@ class BoothView(TemplateView):
         vid = kwargs.get('voting_id', 0)
         user_id = getUsuario(self)
         listaCenso = listaCensadaIds(user_id)
-        if voting_id in listaCenso:
+        if vid in listaCenso:
             context['voted'] = checkUsuarioVoto(vid, user_id)
             v = Vote.objects.create(voting_id=int(vid), voter_id=int(user_id))
             try:
