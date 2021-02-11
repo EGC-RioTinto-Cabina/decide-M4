@@ -35,3 +35,8 @@ notifications:
       - davcacrom@alum.us.es
     on_succes: never
     on_failure: always
+deploy:
+  provider: heroku
+  app: riotinto-m4
+  strategy: git
+  api_key: $HEROKU_AUTH_TOKEN
