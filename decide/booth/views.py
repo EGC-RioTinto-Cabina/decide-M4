@@ -32,7 +32,6 @@ from .models import PeticionCenso
 
 
 # TODO: check permissions and census
-# @login_required(login_url='login')
 class BoothView(TemplateView):
     template_name = 'booth/booth.html'
 
@@ -40,27 +39,29 @@ class BoothView(TemplateView):
         context = super().get_context_data(**kwargs)
         vid = kwargs.get('voting_id', 0)
         user_id = getUsuario(self)
-        context['voted'] = checkUsuarioVoto(vid, user_id)
-        v = Vote.objects.create(voting_id=int(vid),voter_id=int(user_id))
-        try:
-            r = mods.get('voting', params={'id': vid})
+        listaCenso = listaCensadaIds(user_id)
+        if voting_id in listaCenso:
+            context['voted'] = checkUsuarioVoto(vid, user_id)
+            v = Vote.objects.create(voting_id=int(vid), voter_id=int(user_id))
+            try:
+                r = mods.get('voting', params={'id': vid})
 
-            # Casting numbers to string to manage in javascript with BigInt
-            # and avoid problems with js and big number conversion
-            for k, v in r[0]['pub_key'].items():
-                r[0]['pub_key'][k] = str(v)
+                # Casting numbers to string to manage in javascript with BigInt
+                # and avoid problems with js and big number conversion
+                for k, v in r[0]['pub_key'].items():
+                    r[0]['pub_key'][k] = str(v)
 
-            # context['voting'] = json.dumps(r[0])
-            context['voting'] = r[0]
+                    # context['voting'] = json.dumps(r[0])
+                    context['voting'] = r[0]
             
-        except:
-            raise Http404
+            except:
+                raise Http404
 
-        context['KEYBITS'] = settings.KEYBITS
-        if(context['voting']['start_date']):
-            context['voting']['start_date'] = self.format_fecha(context['voting']['start_date'])
-        if(context['voting']['end_date']):
-            context['voting']['end_date'] = self.format_fecha(context['voting']['end_date'])
+            context['KEYBITS'] = settings.KEYBITS
+            if(context['voting']['start_date']):
+                context['voting']['start_date'] = self.format_fecha(context['voting']['start_date'])
+            if(context['voting']['end_date']):
+                context['voting']['end_date'] = self.format_fecha(context['voting']['end_date'])
 
         return context
     
